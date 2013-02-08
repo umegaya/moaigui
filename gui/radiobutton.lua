@@ -36,7 +36,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local abutton = require "gui/abutton"
 local awidgetevent = require "gui/awidgetevent"

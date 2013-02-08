@@ -16,7 +16,7 @@ APP_NAME = "Multiple Layout Demo"
 DEBUG = false
 
 -- Classes for Lua
-require "gui/support/class"
+local class = require "gui/support/class"
 
 -- The MOAIGUI framework, which addes basic GUI features to MOAI
 local gui = require "gui/gui"

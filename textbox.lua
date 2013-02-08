@@ -5,7 +5,7 @@
 	This demonstrates creating various widgets programmatically.
 ]]
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local gui = require "gui/gui"
 local resources = require "gui/support/resources"

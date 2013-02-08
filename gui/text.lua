@@ -44,7 +44,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 _M.Text = class()
 

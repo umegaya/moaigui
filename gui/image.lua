@@ -35,7 +35,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local awindow = require "gui/awindow"
 local imagelist = require "gui/imagelist"

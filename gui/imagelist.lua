@@ -31,7 +31,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local textures = require "gui/textures"
 

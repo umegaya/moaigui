@@ -35,7 +35,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local abutton = require "gui/abutton"
 local inputconstants = require "gui/support/inputconstants"

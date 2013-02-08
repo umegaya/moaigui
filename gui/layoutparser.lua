@@ -39,7 +39,7 @@
 
 local _M = {}
 
-require "gui/support/class"
+local class = require "gui/support/class"
 
 local utilities = require "gui/support/utilities"
 local resources = require "gui/support/resources"

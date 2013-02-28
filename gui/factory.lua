@@ -247,8 +247,8 @@ function _M.Factory:_createProgressBar()
 	return w
 end
 
-function _M.Factory:_createTextBox()
-	local w = textbox.TextBox(self._gui)
+function _M.Factory:_createTextBox(options)
+	local w = textbox.TextBox(self._gui, options)
 	self:_createBase(w)
 
 	if (nil == self._theme) then
@@ -300,7 +300,7 @@ function _M.Factory:create(widgetType, ...)
 	local func = self._registeredWidgets[widgetType]
 	if (nil == func) then return nil end
 
-	local widget = func(self)
+	local widget = func(self, ...)
 	return widget
 end
 

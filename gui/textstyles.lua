@@ -45,6 +45,9 @@ function _M.create(name, font, size, r, g, b, a, scale)
 	b = (b or 1)
 	a = (a or 1)
 	scale = (scale or 1)
+	--> because scale set to 2 not solving problem of retina mode, 
+	--> try to double font size itself for work around.
+	local font_size_scale = (_G.font_size_scale or 1)
 
 
 	local style = styles[name]
@@ -55,7 +58,7 @@ function _M.create(name, font, size, r, g, b, a, scale)
 	style = MOAITextStyle.new()
 	style:setColor(r, g, b, a)
 	style:setFont(font)
-	style:setSize(size)
+	style:setSize(size * font_size_scale)
 	style:setScale(scale)
 
 	styles[name] = style

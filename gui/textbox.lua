@@ -81,15 +81,22 @@ function _M.TextBox:_displayLines()
 	if (0 == #self._lines) then return end
 
 	for i, v in ipairs(self._lines) do
+		print('hide line', i, self:_calcScrollBarPageSize())
 		v:hide()
 	end
 
 	local minLine, maxLine
 
-	minLine = math.min(#self._lines, self._scrollBar:getTopItem())
-	maxLine = math.min(#self._lines, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
+	if self._scrollBar then
+		minLine = math.min(#self._lines, self._scrollBar:getTopItem())
+		maxLine = math.min(#self._lines, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
+	else
+		minLine = math.min(#self._lines, self._topPos)
+		maxLine = math.min(#self._lines, self._topPos + self:_calcScrollBarPageSize() - 1)
+	end
 
 	for i = minLine, maxLine do
+		print('show line', i)
 		self._lines[i]:show()
 		self._lines[i]:setPos(0.5, (i - minLine) * self._lineHeight)
 	end
@@ -99,9 +106,49 @@ function _M.TextBox:_handleScrollPosChange(event)
 	self:_displayLines()
 end
 
+--> for swipe detection
+function _M.TextBox:__handleMouseUp(event)
+	print('handlemouseup')
+	self._hold = false
+end
+function _M.TextBox:__handleMouseDown(event)
+	print('handlemousedown')
+	self._hold = true
+end
+function _M.TextBox:__handleMouseMove(event)
+	print('handlemousemove', self._hold, event.x, event.y, event.prevX, event.prevY)
+	--[[
+	event.x
+	event.y
+	event.prevX
+	event.prevY
+	]]--
+	if self._hold then
+		local diffy = (event.y - event.prevY)
+		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._lineHeight)
+		self._diffy = (self._diffy + diffy)
+		print('total movey = ', self._diffy)
+		if math.abs(self._diffy) >= height_for_oneline then
+			print('movey = ', diffy, height_for_oneline)
+			local difflines = diffy / height_for_oneline
+			difflines = (difflines < 0) and math.floor(difflines) or math.ceil(difflines)
+			print('difflines = ', difflines)
+			local newPos = self._topPos + difflines
+			newPos = math.min(math.max(1, newPos), math.max(1, (#self._lines - self:_calcScrollBarPageSize()) + 1))
+			if self._topPos ~= newPos then
+				self._topPos = newPos
+				self:_displayLines()
+			end
+		end
+	end
+end
+
+
 function _M.TextBox:setLineHeight(height)
 	self._lineHeight = height
-	self._scrollBar:setPageSize(self:_calcScrollBarPageSize())
+	if self._scrollBar then
+		self._scrollBar:setPageSize(self:_calcScrollBarPageSize())
+	end
 end
 
 function _M.TextBox:getLineHeight()
@@ -110,7 +157,7 @@ end
 
 function _M.TextBox:setBackgroundImage(image, r, g, b, a, idx, blendSrc, blendDst)
 	self:_setImage(self._rootProp, self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES, image, r, g, b, a, idx, blendSrc, blendDst)
-	self:_setCurrImages(self._TEXT_BOX_INDEX, self.BACKGROUND_IMAGES)
+	self:_setCurrImages(self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES)
 
 end
 
@@ -129,13 +176,15 @@ function _M.TextBox:_addNewLine()
 	line:setDim(self:width(), self._lineHeight)
 	self._lines[#self._lines + 1] = line
 	self:_addWidgetChild(line)
-	self._scrollBar:setNumItems(self._scrollBar:getNumItems() + 1)
-
+	if self._scrollBar then
+		self._scrollBar:setNumItems(self._scrollBar:getNumItems() + 1)
+	end
+	
 	return line
 end
 
 function _M.TextBox:_addText(text)
-	local maxLineWidth = self:screenWidth() - self._scrollBar:screenWidth()
+	local maxLineWidth = self._scrollBar and (self:screenWidth() - self._scrollBar:screenWidth()) or self:screenWidth()
 	while (#text > 0) do
 		local line = self._lines[#self._lines]
 		if (nil == line) then
@@ -196,6 +245,12 @@ function _M.TextBox:addText(text)
 	end
 
 	self:_addText(paragraphs[#paragraphs])
+	
+	if self._topPos and self._options and self._options.showBottom then
+		if #self._lines >= (self._topPos + self:_calcScrollBarPageSize()) then
+			self._topPos = (#self._lines - self:_calcScrollBarPageSize() + 1)
+		end
+	end
 
 	self:_displayLines()
 
@@ -223,10 +278,21 @@ function _M.TextBox:removeLine(idx)
 
 	self:_removeWidgetChild(self._lines[idx])
 
-	self._scrollBar:setTopItem(1)
-	self._scrollBar:setNumItems(self._scrollBar:getNumItems() - 1)
+	if self._scrollBar then
+		self._scrollBar:setTopItem(1)
+		self._scrollBar:setNumItems(self._scrollBar:getNumItems() - 1)
+	end
 
 	table.remove(self._lines, idx)
+	
+	if self._topPos and self._options and self._options.showBottom then
+		if #self._lines < (self._topPos + self:_calcScrollBarPageSize()) then
+			self._topPos = (#self._lines - self:_calcScrollBarPageSize())
+			if self._topPos < 1 then
+				self._topPos = 1
+			end
+		end
+	end
 
 	self:_displayLines()
 end
@@ -256,7 +322,7 @@ function _M.TextBox:_TextBoxEvents()
 	self.EVENT_TEXT_BOX_CLEAR_TEXT = "EventTextBoxClearText"
 end
 
-function _M.TextBox:init(gui)
+function _M.TextBox:init(gui, options)
 	awindow.AWindow.init(self, gui)
 
 	self._type = "TextBox"
@@ -271,9 +337,22 @@ function _M.TextBox:init(gui)
 	self._lines = {}
 	-- self._maxLines = 20
 
-	self._scrollBar = gui:createVertScrollBar()
-	self:_addWidgetChild(self._scrollBar)
-	self._scrollBar:registerEventHandler(self._scrollBar.EVENT_SCROLL_BAR_POS_CHANGED, self, "_handleScrollPosChange")
+	self._options = options
+	if not options then
+		print(debug.traceback())
+	end
+	
+	if (not options) or (not options.useSwipe) then
+		self._scrollBar = gui:createVertScrollBar()
+		self:_addWidgetChild(self._scrollBar)
+		self._scrollBar:registerEventHandler(self._scrollBar.EVENT_SCROLL_BAR_POS_CHANGED, self, "_handleScrollPosChange")
+	else
+		self:registerEventHandler(self.EVENT_MOUSE_UP, self, "__handleMouseUp")
+		self:registerEventHandler(self.EVENT_MOUSE_DOWN, self, "__handleMouseDown")
+		self:registerEventHandler(self.EVENT_MOUSE_MOVE, self, "__handleMouseMove")
+		self._topPos = 1
+		self._diffy = 0
+	end
 end
 
 return _M

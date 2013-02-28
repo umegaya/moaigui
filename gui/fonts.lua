@@ -58,6 +58,7 @@ function _M.load(name, fileName)
 
 	fileName = resources.getPath(fileName)
 	font = _createFont(fileName)
+	print('load font:' .. fileName, font)
 
 	if (nil ~= font) then
 		fonts[name] = font

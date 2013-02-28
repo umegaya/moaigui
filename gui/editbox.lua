@@ -71,7 +71,7 @@ function _M.EditBox:_onHandleLoseFocus(event)
 	local text = self._text:getString()
 	text = text:sub(0, self._cursorPos - 1) .. text:sub(self._cursorPos + 1)
 	self._text:setString(text)
-
+	
 	return self:_baseHandleLoseFocus(event)
 end
 

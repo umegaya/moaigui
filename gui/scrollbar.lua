@@ -136,7 +136,9 @@ function _M.ScrollBar:setTopItem(value)
 	if (value < 1) then
 		value = 1
 	end
-
+	
+	self._topItem = value
+	
 	if (self.ORIENTATION_HORZ == self._orientation) then
 		-- self._thumb:setPos(((self:width() - self._thumb:width()) / (self._numItems - self._pageSize - 1)) * (value - 1), 0)
 		self._thumb:setPos((self:width() - self._thumb:width()) * (value - 1), 0)

@@ -60,4 +60,6 @@ _M.GUI_GAIN_FOCUS = 70
 
 _M.GUI_LOSE_FOCUS = 80
 
+_M.GUI_SOFT_KEY_INPUT = 90
+
 return _M

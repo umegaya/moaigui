@@ -793,6 +793,9 @@ function _M.AWindow:_baseHandleTouchTap(event)
 	return self:_handleEvent(self.EVENT_TOUCH_TAP, event)
 end
 
+function _M.AWindow:_baseHandleSoftKeyInput(event)
+	return self:_handleEvent(self.EVENT_SOFT_KEY_INPUT, event)
+end
 
 
 
@@ -875,6 +878,10 @@ end
 
 function _M.AWindow:_onHandleTouchTap(event)
 	return self:_baseHandleTouchTap(event)
+end
+
+function _M.AWindow:_onHandleSoftKeyInput(event)
+	return self:_baseHandleSoftKeyInput(event)
 end
 
 function _M.AWindow:_passThrough()
@@ -1154,6 +1161,17 @@ function _M.AWindow:_handleTouchTap(event)
 	return result
 end
 
+function _M.AWindow:_handleSoftKeyInput(event)
+	local result = self:_onHandleSoftKeyInput(event)
+	if (not result) then
+		if (nil ~= self._parent) then
+			self._parent:_handleSoftKeyInput(event)
+		end
+	end
+
+	return result
+end
+
 function _M.AWindow:_AWindowPrivateVars()
 	self._type = "AWindow"
 	self._name = ""
@@ -1215,7 +1233,8 @@ function _M.AWindow:_AWindowEvents()
 	self.EVENT_TOUCH_DOWN = "EventTouchDown"
 	self.EVENT_TOUCH_UP = "EventTouchUp"
 	self.EVENT_TOUCH_TAP = "EventTouchTap"
-
+	self.EVENT_SOFT_KEY_INPUT = "EventSoftKeyInput"
+	
 end
 
 function _M.AWindow:init(gui)

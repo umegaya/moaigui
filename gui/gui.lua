@@ -253,6 +253,13 @@ function _M.GUI:_createLoseFocusEvent(widget)
 	return event
 end
 
+function _M.GUI:_createSoftKeyboardInputEvent(inputText)
+	local event = aevent.AEvent(constants.GUI_SOFT_KEY_INPUT)
+	event.inputText = inputText
+
+	return event
+end
+
 function _M.GUI:viewport()
 	return self._viewport
 end
@@ -476,6 +483,16 @@ function _M.GUI:injectTouch(eventType, idx, x, y, tapCount)
 	
 	local widget = self:_calcInputOver(x, y)
 	return self:_handleTouchOverWidget(widget)
+end
+
+function _M.GUI:injectSoftKeyboardInput(inputText)
+	local result = false
+	local event = self:_createSoftKeyboardInputEvent(inputText)
+	if (nil ~= self._focus) then
+		result = self._focus:_handleSoftKeyInput(event)
+	end
+
+	return result
 end
 
 function _M.GUI:injectButton()

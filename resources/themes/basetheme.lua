@@ -1,17 +1,22 @@
 
+local
+font_file = "migmix-1p-regular.ttf"
+-->font_file = "arial-rounded.TTF"
+-->font_file = "Osaka.ttf"
+
 data = {
 	textstyles = {
 		default = {
-			font = "arial-rounded.TTF",
+			font = font_file,
 			size = 13,
 		},
 		listselected = {
-			font = "arial-rounded.TTF",
+			font = font_file,
 			size = 13,
 			color = {0, 0, 0, 1}
 		},
 		listunselected = {
-			font = "arial-rounded.TTF",
+			font = font_file,
 			size = 13,
 			color = {1, 1, 1, 1}
 		}

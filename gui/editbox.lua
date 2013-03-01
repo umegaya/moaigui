@@ -116,6 +116,20 @@ function _M.EditBox:_onHandleKeyDown(event)
 	return true
 end
 
+function _M.EditBox:_onHandleSoftKeyInput(event)
+	local inputText = event.inputText
+
+	if (#inputText >= self._maxLength) then
+		return false
+	end
+
+	self:setText(inputText)
+	self._cursorPos = self._cursorPos + #inputText
+	self:_addCursor()
+
+	return true
+end
+
 function _M.EditBox:_onHandleKeyUp(event)
 	
 end
@@ -215,7 +229,7 @@ function _M.EditBox:init(gui)
 	self._passwordChar = nil
 	self._cursorPos = 1
 	self._internalText = ""
-	self._maxLength = 20
+	self._maxLength = 100
 	self._allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.:,;(:*!?' "
 
 	self:setTextAlignment(self.TEXT_ALIGN_LEFT, self.TEXT_ALIGN_CENTER)

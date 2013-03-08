@@ -417,7 +417,7 @@ function _M.WidgetList:setBackgroundImage(fileName, r, g, b, a, idx, blendSrc, b
 end
 
 function _M.WidgetList:getBackgroundImage()
-	return self._imageList:getImage(self._EDIT_BOX_INDEX, self.BACKGROUND_IMAGES)
+	return self._imageList:getImage(self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES)
 end
 
 function _M.WidgetList:setSelectionImage(fileName, r, g, b, a, idx, blendSrc, blendDst)

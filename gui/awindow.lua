@@ -324,7 +324,6 @@ end
 
 function _M.AWindow:_addWidgetChild(child)
 	self._widgetChildren[#self._widgetChildren + 1] = child
-	
 	child:_setParent(self)
 
 	local x, y = child:getPos()

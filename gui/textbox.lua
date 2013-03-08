@@ -81,7 +81,7 @@ function _M.TextBox:_displayLines()
 	if (0 == #self._lines) then return end
 
 	for i, v in ipairs(self._lines) do
-		print('hide line', i, self:_calcScrollBarPageSize())
+		-->print('hide line', i, self:_calcScrollBarPageSize())
 		v:hide()
 	end
 
@@ -96,7 +96,7 @@ function _M.TextBox:_displayLines()
 	end
 
 	for i = minLine, maxLine do
-		print('show line', i)
+		-->print('show line', i)
 		self._lines[i]:show()
 		self._lines[i]:setPos(0.5, (i - minLine) * self._lineHeight)
 	end

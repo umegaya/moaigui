@@ -107,7 +107,9 @@ function WidgetListHeader:init(gui, height)
 end
 
 function WidgetListRow:_onHandleMouseClick(event)
-	self:toggleSelection()
+	if not self._parent:disableSelection() then
+		self:toggleSelection()
+	end
 
 	return true
 end
@@ -562,6 +564,10 @@ function _M.WidgetList:_WidgetListEvents()
 	self.EVENT_WIDGET_LIST_UNSELECT = "EventWidgetListUnselect"
 	self.EVENT_WIDGET_LIST_ADD_ROW = "EventWidgetListAddRow"
 	self.EVENT_WIDGET_LIST_REMOVE_ROW = "EventWidgetListRemoveRow"
+end
+
+function _M.WidgetList:disableSelection()
+	return self._options and (self._options.disableSelection)
 end
 
 function _M.WidgetList:init(gui, options)

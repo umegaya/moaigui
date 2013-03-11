@@ -285,15 +285,22 @@ function _M.WidgetList:_displayRows()
 	if (0 == #self._rows) then return end
 
 	for i, v in ipairs(self._rows) do
+		-->print('hide', i)
 		v:hide()
 	end
 
 	local minRow, maxRow
 
-	minRow = math.min(#self._rows, self._scrollBar:getTopItem())
-	maxRow = math.min(#self._rows, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
+	if self._scrollBar then
+		minRow = math.min(#self._rows, self._scrollBar:getTopItem())
+		maxRow = math.min(#self._rows, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
+	else
+		minRow = math.min(#self._rows, self._topPos)
+		maxRow = math.min(#self._rows, self._topPos + self:_calcScrollBarPageSize() - 1)
+	end
 
 	for i = minRow, maxRow do
+		-->print('show', i)
 		self._rows[i]:show()
 		self._rows[i]:setPos(0.5, HEADER_HEIGHT + (i - minRow) * self._rowHeight)
 	end
@@ -303,13 +310,50 @@ function _M.WidgetList:_handleScrollPosChange(event)
 	self:_displayRows()
 end
 
+
+--> for swipe detection
+function _M.WidgetList:__handleMouseUp(event)
+	self._hold = false
+end
+function _M.WidgetList:__handleMouseDown(event)
+	self._hold = true
+end
+function _M.WidgetList:__handleMouseMove(event)
+	print('widgetlist: handlemousemove', self._hold, event.x, event.y, event.prevX, event.prevY)
+	--[[
+	event.x
+	event.y
+	event.prevX
+	event.prevY
+	]]--
+	if self._hold then
+		local diffy = (event.y - event.prevY)
+		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._rowHeight)
+		self._diffy = (self._diffy + diffy)
+		print('wl:total movey = ', self._diffy)
+		if math.abs(self._diffy) >= height_for_oneline then
+			print('wl:movey = ', diffy, height_for_oneline)
+			local difflines = diffy / height_for_oneline
+			difflines = (difflines < 0) and math.floor(difflines) or math.ceil(difflines)
+			print('wl:difflines = ', difflines)
+			local newPos = self._topPos + difflines
+			newPos = math.min(math.max(1, newPos), math.max(1, (#self._rows - self:_calcScrollBarPageSize()) + 1))
+			if self._topPos ~= newPos then
+				self._topPos = newPos
+				self:_displayRows()
+			end
+		end
+	end
+end
+
+
 function _M.WidgetList:addColumn(text, width)
 	self._header:addColumn(text, width)
 end
 
 function _M.WidgetList:insertRow(before, data)
 	local widths = self._header:getColumnWidths()
-	local row = WidgetListRow(self._gui, #self._rows + 1, widths, self:width() - SCROLL_BAR_WIDTH, self._rowHeight)
+	local row = WidgetListRow(self._gui, #self._rows + 1, widths, self:width() - (self._scrollBar and SCROLL_BAR_WIDTH or 0), self._rowHeight)
 	row:setUserData(data)
 	self:_addWidgetChild(row)
 
@@ -342,8 +386,10 @@ function _M.WidgetList:insertRow(before, data)
 		end
 	end
 
-	self._scrollBar:setTopItem(1)
-	self._scrollBar:setNumItems(self._scrollBar:getNumItems() + 1)
+	if self._scrollBar then
+		self._scrollBar:setTopItem(1)
+		self._scrollBar:setNumItems(self._scrollBar:getNumItems() + 1)
+	end
 
 	self:_displayRows()
 
@@ -376,15 +422,17 @@ function _M.WidgetList:removeRow(idx)
 		self._rows[i]._idx = self._rows[i]._idx - 1
 	end
 
-	self._scrollBar:setTopItem(1)
-	self._scrollBar:setNumItems(self._scrollBar:getNumItems() - 1)
+	if self._scrollBar then
+		self._scrollBar:setTopItem(1)
+		self._scrollBar:setNumItems(self._scrollBar:getNumItems() - 1)
+	end
 	self:_removeWidgetChild(self._rows[idx])
 
 	table.remove(self._rows, idx)
 
 	self:_displayRows()
 
-	local e = self:_createWidgetListRemoveRowEvent(before)
+	local e = self:_createWidgetListRemoveRowEvent(idx)
 
 	self:_handleEvent(self.EVENT_WIDGET_LIST_REMOVE_ROW, e)
 end
@@ -399,7 +447,9 @@ end
 
 function _M.WidgetList:setRowHeight(height)
 	self._rowHeight = height
-	self._scrollBar:setPageSize(self:_calcScrollBarPageSize())
+	if self._scrollBar then
+		self._scrollBar:setPageSize(self:_calcScrollBarPageSize())
+	end
 end
 
 function _M.WidgetList:getRowHeight()
@@ -514,7 +564,7 @@ function _M.WidgetList:_WidgetListEvents()
 	self.EVENT_WIDGET_LIST_REMOVE_ROW = "EventWidgetListRemoveRow"
 end
 
-function _M.WidgetList:init(gui)
+function _M.WidgetList:init(gui, options)
 	awindow.AWindow.init(self, gui)
 
 	self._type = "WidgetList"
@@ -536,9 +586,19 @@ function _M.WidgetList:init(gui)
 	self._selectedTextStyle = nil
 	self._unselectedTextStyle = nil
 
-	self._scrollBar = gui:createVertScrollBar()
-	self:_addWidgetChild(self._scrollBar)
-	self._scrollBar:registerEventHandler(self._scrollBar.EVENT_SCROLL_BAR_POS_CHANGED, self, "_handleScrollPosChange")
+	self._options = options
+	
+	if (not options) or (not options.useSwipe) then
+		self._scrollBar = gui:createVertScrollBar()
+		self:_addWidgetChild(self._scrollBar)
+		self._scrollBar:registerEventHandler(self._scrollBar.EVENT_SCROLL_BAR_POS_CHANGED, self, "_handleScrollPosChange")
+	else
+		self:registerEventHandler(self.EVENT_MOUSE_UP, self, "__handleMouseUp")
+		self:registerEventHandler(self.EVENT_MOUSE_DOWN, self, "__handleMouseDown")
+		self:registerEventHandler(self.EVENT_MOUSE_MOVE, self, "__handleMouseMove")
+		self._topPos = 1
+		self._diffy = 0
+	end
 
 	self._header = WidgetListHeader(gui, HEADER_HEIGHT)
 	self:_addWidgetChild(self._header)

@@ -260,8 +260,8 @@ function _M.Factory:_createTextBox(options)
 	return w
 end
 
-function _M.Factory:_createWidgetList()
-	local w = widgetlist.WidgetList(self._gui)
+function _M.Factory:_createWidgetList(options)
+	local w = widgetlist.WidgetList(self._gui, options)
 	if (nil == self._theme) then
 		return w
 	end

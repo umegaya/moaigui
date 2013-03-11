@@ -108,11 +108,9 @@ end
 
 --> for swipe detection
 function _M.TextBox:__handleMouseUp(event)
-	print('handlemouseup')
 	self._hold = false
 end
 function _M.TextBox:__handleMouseDown(event)
-	print('handlemousedown')
 	self._hold = true
 end
 function _M.TextBox:__handleMouseMove(event)
@@ -338,9 +336,6 @@ function _M.TextBox:init(gui, options)
 	-- self._maxLines = 20
 
 	self._options = options
-	if not options then
-		print(debug.traceback())
-	end
 	
 	if (not options) or (not options.useSwipe) then
 		self._scrollBar = gui:createVertScrollBar()

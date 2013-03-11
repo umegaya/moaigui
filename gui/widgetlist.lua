@@ -327,7 +327,7 @@ function _M.WidgetList:__handleMouseMove(event)
 	event.prevY
 	]]--
 	if self._hold then
-		local diffy = (event.y - event.prevY)
+		local diffy = (event.prevY - event.y)
 		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._rowHeight)
 		self._diffy = (self._diffy + diffy)
 		print('wl:total movey = ', self._diffy)
@@ -602,7 +602,7 @@ function _M.WidgetList:init(gui, options)
 
 	self._header = WidgetListHeader(gui, HEADER_HEIGHT)
 	self:_addWidgetChild(self._header)
-
+	
 	self:setRowHeight(ROW_HEIGHT)
 end
 

@@ -122,7 +122,7 @@ function _M.TextBox:__handleMouseMove(event)
 	event.prevY
 	]]--
 	if self._hold then
-		local diffy = (event.y - event.prevY)
+		local diffy = (event.prevY - event.y)
 		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._lineHeight)
 		self._diffy = (self._diffy + diffy)
 		print('total movey = ', self._diffy)

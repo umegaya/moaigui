@@ -68,11 +68,11 @@ function WidgetListColumn:init(gui)
 end
 
 function WidgetListHeader:setHeaderText(col, text)
-	if (col < 1 or col > #self._children) then
+	if (col < 1 or col > #self._widgetChildren) then
 		return
 	end
 
-	self._children[col]:setText(text)
+	self._widgetChildren[col]:setText(text)
 end
 
 function WidgetListHeader:addColumn(text, width)
@@ -340,13 +340,17 @@ function _M.WidgetList:__handleMouseMove(event)
 			print('wl:difflines = ', difflines)
 			local newPos = self._topPos + difflines
 			newPos = math.min(math.max(1, newPos), math.max(1, (#self._rows - self:_calcScrollBarPageSize()) + 1))
-			if self._topPos ~= newPos then
-				self._topPos = newPos
-				self:_displayRows()
-			end
+			self:__setNewTopPos(newPos)
 		end
 	end
 end
+function _M.WidgetList:__setNewTopPos(newPos)
+	if self._topPos ~= newPos then
+		self._topPos = newPos
+		self:_displayRows()
+	end
+end
+
 
 
 function _M.WidgetList:addColumn(text, width)

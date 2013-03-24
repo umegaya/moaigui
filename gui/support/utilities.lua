@@ -44,4 +44,33 @@ function _M.loadFileData(fileName)
 	return dofile(fileName)
 end
 
+function _M.nextCharLengthUtf8(str, ofs)
+	local code = str:byte(ofs or 1)
+	if code <= 127 then
+		return 1
+	elseif code >= 0xC2 and code < 0xE0 then
+		return 2
+	elseif code < 0xF0 then
+		return 3
+	elseif code < 0xF8 then
+		return 4
+	elseif code < 0xFC then
+		return 5
+	else
+		assert(false, 'invalid utf8 string lead byte:' .. str:char(1))
+	end
+end
+
+function _M.eachUTF8Char(text, iter)
+	local pos, chlen = 1, false
+	local len = #text
+	while pos < len do
+		chlen = _M.nextCharLengthUtf8(text, pos)
+		if iter(text, pos, chlen) then
+			return
+		end
+		pos = (pos + chlen)
+	end
+end
+
 return _M

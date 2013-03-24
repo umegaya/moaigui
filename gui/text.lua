@@ -75,6 +75,14 @@ function _M.Text:setTextStyle(style)
 	self:setPos(self:x(), self:y())
 end
 
+function _M.Text:setLineSpacing(height)
+	self._textBox:setLineSpacing(height)
+end
+
+function _M.Text:getLineSpacing()
+	return self._textBox:getLineSpacing()
+end
+
 function _M.Text:getTextStyle()
 	return self._textStyle
 end

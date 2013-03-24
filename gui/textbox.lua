@@ -36,6 +36,7 @@
 local _M = {}
 
 local class = require "gui/support/class"
+local util = require "gui/support/utilities"
 
 local awindow = require "gui/awindow"
 local label = require "gui/label"
@@ -96,7 +97,7 @@ function _M.TextBox:_displayLines()
 	end
 
 	for i = minLine, maxLine do
-		-->print('show line', i)
+		-->print('show line', i, self._lines[i]:getText())
 		self._lines[i]:show()
 		self._lines[i]:setPos(0.5, (i - minLine) * self._lineHeight)
 	end
@@ -114,7 +115,7 @@ function _M.TextBox:__handleMouseDown(event)
 	self._hold = true
 end
 function _M.TextBox:__handleMouseMove(event)
-	print('handlemousemove', self._hold, event.x, event.y, event.prevX, event.prevY)
+	-->print('handlemousemove', self._hold, event.x, event.y, event.prevX, event.prevY)
 	--[[
 	event.x
 	event.y
@@ -125,12 +126,12 @@ function _M.TextBox:__handleMouseMove(event)
 		local diffy = (event.prevY - event.y)
 		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._lineHeight)
 		self._diffy = (self._diffy + diffy)
-		print('total movey = ', self._diffy)
+		-->print('total movey = ', self._diffy)
 		if math.abs(self._diffy) >= height_for_oneline then
-			print('movey = ', diffy, height_for_oneline)
+			-->print('movey = ', diffy, height_for_oneline)
 			local difflines = diffy / height_for_oneline
 			difflines = (difflines < 0) and math.floor(difflines) or math.ceil(difflines)
-			print('difflines = ', difflines)
+			-->print('difflines = ', difflines)
 			local newPos = self._topPos + difflines
 			newPos = math.min(math.max(1, newPos), math.max(1, (#self._lines - self:_calcScrollBarPageSize()) + 1))
 			if self._topPos ~= newPos then
@@ -169,6 +170,20 @@ function _M.TextBox:_calcStringWidth(s)
 	return #s * 7.5
 end
 
+function _M.TextBox:_calcUTF8StringWidth(s)
+	-->print('utf8 strwidth:', s, #s, (#s * 7.5))
+	local length = 0
+	local ok, r = pcall(util.eachUTF8Char, s, function (text, pos, len)
+		if len > 1 then
+			length = (length + 15) --> multibyte char
+		else
+			length = (length + 7.5) --> single byte char
+		end
+	end)
+	if not ok then print(r) end
+	return length
+end
+
 function _M.TextBox:_addNewLine()
 	local line = self._gui:createLabel()
 	line:setDim(self:width(), self._lineHeight)
@@ -183,6 +198,7 @@ end
 
 function _M.TextBox:_addText(text)
 	local maxLineWidth = self._scrollBar and (self:screenWidth() - self._scrollBar:screenWidth()) or self:screenWidth()
+	
 	while (#text > 0) do
 		local line = self._lines[#self._lines]
 		if (nil == line) then
@@ -190,23 +206,39 @@ function _M.TextBox:_addText(text)
 		end
 
 		local curr = line:getText()
-		local wordIdx = text:find(" ")
-		if (nil == wordIdx) then
-			line:setText(curr .. text)
-			break
-		end
-
-		local s = text:sub(1, wordIdx)
-		local newWidth = self:_calcStringWidth(curr .. s)
+		local wordIdx = util.nextCharLengthUtf8(text)
+		local s = wordIdx and text:sub(1, wordIdx) or text
+		local newWidth = self:_calcUTF8StringWidth(curr .. s)
+		-->print('newwidth,maxwidth', curr .. s, newWidth, maxLineWidth)
 		if (newWidth > maxLineWidth) then
-			line = self:_addNewLine()
-			line:setText(s)
-
+			if #(line:getText()) <= 0 then
+				--> TODO: un-tokenizable, too long string given. need 'smarter' tokenize, which consider other then white space.
+				--> now just give string as it is. MOAI sdk will trim out of width characters autometically.
+				--> like 
+				-->		local a, b = self:devide(s, self:_calcStringWidth(curr))
+				-->		line:setText(a)
+				-->		line = self:__addNewline()
+				-->		line:setText(b)
+				line:setText(s)
+			else
+				--> insert line feed (because no more room for this line)
+				line = self:_addNewLine()
+				--> last token is too long to fit in given textbox
+				local newWidth = self:_calcStringWidth(s)
+				print('newwidth2,maxwidth:', newWidth, maxLineWidth)
+				if (newWidth > maxLineWidth) then
+					--> last token itself too long need to devide in smart way like above
+					line:setText(s)
+				else
+					--> last token itself enough. it processed fine 
+					line:setText(s)
+				end
+			end
 		else
 			line:setText(curr .. s)
 		end
 
-		text = text:sub(wordIdx + 1)
+		text = wordIdx and text:sub(wordIdx + 1) or ""
 	end
 end
 

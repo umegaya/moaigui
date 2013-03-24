@@ -636,6 +636,14 @@ function _M.AWindow:getTextAlignment()
 	return self._textAlignHorz, self._textAlignVert
 end
 
+function _M.AWindow:setLineSpacing(height)
+	return self._text:setLineSpacing(height)
+end
+
+function _M.AWindow:getLineSpacing(height)
+	return self._text:getLineSpacing(height)
+end
+
 function _M.AWindow:registerEventHandler(eventType, obj, func, data)
 	if (nil == func) then
 		self._eventHandlers[eventType] = nil

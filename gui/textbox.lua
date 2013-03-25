@@ -196,49 +196,50 @@ function _M.TextBox:_addNewLine()
 	return line
 end
 
-function _M.TextBox:_addText(text)
+function _M.TextBox:_addText(str)
 	local maxLineWidth = self._scrollBar and (self:screenWidth() - self._scrollBar:screenWidth()) or self:screenWidth()
-	
-	while (#text > 0) do
-		local line = self._lines[#self._lines]
-		if (nil == line) then
-			line = self:_addNewLine()
-		end
-
-		local curr = line:getText()
-		local wordIdx = util.nextCharLengthUtf8(text)
-		local s = wordIdx and text:sub(1, wordIdx) or text
-		local newWidth = self:_calcUTF8StringWidth(curr .. s)
-		-->print('newwidth,maxwidth', curr .. s, newWidth, maxLineWidth)
-		if (newWidth > maxLineWidth) then
-			if #(line:getText()) <= 0 then
-				--> TODO: un-tokenizable, too long string given. need 'smarter' tokenize, which consider other then white space.
-				--> now just give string as it is. MOAI sdk will trim out of width characters autometically.
-				--> like 
-				-->		local a, b = self:devide(s, self:_calcStringWidth(curr))
-				-->		line:setText(a)
-				-->		line = self:__addNewline()
-				-->		line:setText(b)
-				line:setText(s)
-			else
-				--> insert line feed (because no more room for this line)
+	for text in str:gmatch('([^\n]+)') do
+		while (#text > 0) do
+			local line = self._lines[#self._lines]
+			if (nil == line) then
 				line = self:_addNewLine()
-				--> last token is too long to fit in given textbox
-				local newWidth = self:_calcStringWidth(s)
-				print('newwidth2,maxwidth:', newWidth, maxLineWidth)
-				if (newWidth > maxLineWidth) then
-					--> last token itself too long need to devide in smart way like above
+			end
+	
+			local curr = line:getText()
+			local wordIdx = util.nextCharLengthUtf8(text)
+			local s = wordIdx and text:sub(1, wordIdx) or text
+			local newWidth = self:_calcUTF8StringWidth(curr .. s)
+			-->print('newwidth,maxwidth', curr .. s, newWidth, maxLineWidth)
+			if (newWidth > maxLineWidth) then
+				if #(line:getText()) <= 0 then
+					--> TODO: un-tokenizable, too long string given. need 'smarter' tokenize, which consider other then white space.
+					--> now just give string as it is. MOAI sdk will trim out of width characters autometically.
+					--> like 
+					-->		local a, b = self:devide(s, self:_calcStringWidth(curr))
+					-->		line:setText(a)
+					-->		line = self:__addNewline()
+					-->		line:setText(b)
 					line:setText(s)
 				else
-					--> last token itself enough. it processed fine 
-					line:setText(s)
+					--> insert line feed (because no more room for this line)
+					line = self:_addNewLine()
+					--> last token is too long to fit in given textbox
+					local newWidth = self:_calcStringWidth(s)
+					print('newwidth2,maxwidth:', newWidth, maxLineWidth)
+					if (newWidth > maxLineWidth) then
+						--> last token itself too long need to devide in smart way like above
+						line:setText(s)
+					else
+						--> last token itself enough. it processed fine 
+						line:setText(s)
+					end
 				end
+			else
+				line:setText(curr .. s)
 			end
-		else
-			line:setText(curr .. s)
+	
+			text = wordIdx and text:sub(wordIdx + 1) or ""
 		end
-
-		text = wordIdx and text:sub(wordIdx + 1) or ""
 	end
 end
 

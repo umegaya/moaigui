@@ -82,7 +82,7 @@ function _M.TextBox:_displayLines()
 	if (0 == #self._lines) then return end
 
 	for i, v in ipairs(self._lines) do
-		-->print('hide line', i, self:_calcScrollBarPageSize())
+		-->print('hide line', i, self._lines[i]:getText())
 		v:hide()
 	end
 
@@ -302,7 +302,7 @@ function _M.TextBox:removeLine(idx)
 	if (idx < 1 or idx > #self._lines) then return end
 
 	local text = self._lines[idx]:getText()
-	local f = self._fullText:find(text)
+	local f = self._fullText:find(text, 1, true) --> turn off regex search
 	if (nil == f) then return end
 
 	self._fullText = self._fullText:sub(1, f - 1) .. self._fullText:sub(f + #text)

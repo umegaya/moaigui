@@ -293,7 +293,7 @@ function _M.WidgetList:_displayRows()
 
 	local minRow, maxRow
 
-	if self._scrollBar then
+	if not self:useSwipe() then
 		minRow = math.min(#self._rows, self._scrollBar:getTopItem())
 		maxRow = math.min(#self._rows, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
 	else
@@ -314,11 +314,23 @@ end
 
 
 --> for swipe detection
+function _M.WidgetList:useSwipe()
+	return self._options and self._options.useSwipe
+end
+function _M.WidgetList:showScrollBarOnSwipe()
+	return self._options and self._options.showScrollBarOnSwipe
+end
 function _M.WidgetList:__handleMouseUp(event)
 	self._hold = false
+	if self._scrollBar then
+		self._scrollBar:hide()
+	end
 end
 function _M.WidgetList:__handleMouseDown(event)
 	self._hold = true
+	if self._scrollBar then
+		self._scrollBar:show()
+	end
 end
 function _M.WidgetList:__handleMouseMove(event)
 	print('widgetlist: handlemousemove', self._hold, event.x, event.y, event.prevX, event.prevY)
@@ -332,12 +344,12 @@ function _M.WidgetList:__handleMouseMove(event)
 		local diffy = (event.prevY - event.y)
 		local tmp, height_for_oneline = self._gui:_calcAbsValue(0, self._rowHeight)
 		self._diffy = (self._diffy + diffy)
-		print('wl:total movey = ', self._diffy)
+		-->print('wl:total movey = ', self._diffy)
 		if math.abs(self._diffy) >= height_for_oneline then
-			print('wl:movey = ', diffy, height_for_oneline)
+			-->print('wl:movey = ', diffy, height_for_oneline)
 			local difflines = diffy / height_for_oneline
 			difflines = (difflines < 0) and math.floor(difflines) or math.ceil(difflines)
-			print('wl:difflines = ', difflines)
+			-->print('wl:difflines = ', difflines)
 			local newPos = self._topPos + difflines
 			newPos = math.min(math.max(1, newPos), math.max(1, (#self._rows - self:_calcScrollBarPageSize()) + 1))
 			self:__setNewTopPos(newPos)
@@ -347,6 +359,9 @@ end
 function _M.WidgetList:__setNewTopPos(newPos)
 	if self._topPos ~= newPos then
 		self._topPos = newPos
+		if self._scrollBar then
+			self._scrollBar:setTopItem(newPos)
+		end
 		self:_displayRows()
 	end
 end
@@ -359,7 +374,7 @@ end
 
 function _M.WidgetList:insertRow(before, data)
 	local widths = self._header:getColumnWidths()
-	local row = WidgetListRow(self._gui, #self._rows + 1, widths, self:width() - (self._scrollBar and SCROLL_BAR_WIDTH or 0), self._rowHeight)
+	local row = WidgetListRow(self._gui, #self._rows + 1, widths, self:width() - ((not self:useSwipe()) and SCROLL_BAR_WIDTH or 0), self._rowHeight)
 	row:setUserData(data)
 	self:_addWidgetChild(row)
 
@@ -598,11 +613,12 @@ function _M.WidgetList:init(gui, options)
 
 	self._options = options
 	
-	if (not options) or (not options.useSwipe) then
+	if (not self:useSwipe()) or (self:showScrollBarOnSwipe()) then
 		self._scrollBar = gui:createVertScrollBar()
 		self:_addWidgetChild(self._scrollBar)
 		self._scrollBar:registerEventHandler(self._scrollBar.EVENT_SCROLL_BAR_POS_CHANGED, self, "_handleScrollPosChange")
-	else
+	end
+	if self:useSwipe() then
 		self:registerEventHandler(self.EVENT_MOUSE_UP, self, "__handleMouseUp")
 		self:registerEventHandler(self.EVENT_MOUSE_DOWN, self, "__handleMouseDown")
 		self:registerEventHandler(self.EVENT_MOUSE_MOVE, self, "__handleMouseMove")

@@ -146,13 +146,19 @@ function _M.TextBox:__handleMouseMove(event)
 			-->print('difflines = ', difflines)
 			local newPos = self._topPos + difflines
 			newPos = math.min(math.max(1, newPos), math.max(1, (#self._lines - self:_calcScrollBarPageSize()) + 1))
-			if self._topPos ~= newPos then
-				self._topPos = newPos
-				if self._scrollBar then
-					self._scrollBar:setTopItem(newPos)
-				end
-				self:_displayLines()
-			end
+			self:__setNewTopPos(newPos, true)
+		end
+	end
+end
+
+function _M.TextBox:__setNewTopPos(newPos, render)
+	if self._topPos ~= newPos then
+		self._topPos = newPos
+		if self._scrollBar then
+			self._scrollBar:setTopItem(newPos)
+		end
+		if render then
+			self:_displayLines()
 		end
 	end
 end
@@ -294,7 +300,7 @@ function _M.TextBox:addText(text)
 	
 	if self._topPos and self._options and self._options.showBottom then
 		if #self._lines >= (self._topPos + self:_calcScrollBarPageSize()) then
-			self._topPos = (#self._lines - self:_calcScrollBarPageSize() + 1)
+			self:__setNewTopPos(#self._lines - self:_calcScrollBarPageSize() + 1)
 		end
 	end
 
@@ -333,10 +339,11 @@ function _M.TextBox:removeLine(idx)
 	
 	if self._topPos and self._options and self._options.showBottom then
 		if #self._lines < (self._topPos + self:_calcScrollBarPageSize()) then
-			self._topPos = (#self._lines - self:_calcScrollBarPageSize())
-			if self._topPos < 1 then
-				self._topPos = 1
+			local newPos = (#self._lines - self:_calcScrollBarPageSize())
+			if newPos < 1 then
+				newPos = 1
 			end
+			self:__setNewTopPos(newPos)
 		end
 	end
 

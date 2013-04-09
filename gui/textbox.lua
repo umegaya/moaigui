@@ -272,7 +272,7 @@ function _M.TextBox:newLine(num)
 	end
 end
 
-function _M.TextBox:_calcParagraphs(text)
+_M.TextBox._calcParagraphsSub = function (text)
 	local paragraphs = {}
 	local idx = text:find("\n")
 	while (nil ~= idx) do
@@ -284,6 +284,10 @@ function _M.TextBox:_calcParagraphs(text)
 	paragraphs[#paragraphs + 1] = text
 
 	return paragraphs
+end
+
+function _M.TextBox:_calcParagraphs(text)
+	return _M.TextBox._calcParagraphsSub(text)
 end
 
 function _M.TextBox:addText(text)

@@ -88,7 +88,7 @@ function _M.TextBox:_displayLines()
 
 	local minLine, maxLine
 
-	if self._scrollBar then
+	if (not self:useSwipe()) and self._scrollBar then
 		minLine = math.min(#self._lines, self._scrollBar:getTopItem())
 		maxLine = math.min(#self._lines, self._scrollBar:getTopItem() + self._scrollBar:getPageSize() - 1)
 	else

@@ -196,9 +196,9 @@ function _M.TextBox:_calcUTF8StringWidth(s)
 	local length = 0
 	local ok, r = pcall(util.eachUTF8Char, s, function (text, pos, len)
 		if len > 1 then
-			length = (length + 15) --> multibyte char
+			length = (length + (15 * _G.font_size_scale)) --> multibyte char
 		else
-			length = (length + 7.5) --> single byte char
+			length = (length + (7.5 * _G.font_size_scale)) --> single byte char
 		end
 	end)
 	if not ok then print(r) end

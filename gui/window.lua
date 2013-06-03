@@ -41,8 +41,8 @@ local awindow = require "gui/awindow"
 
 _M.Window = class(awindow.AWindow)
 
-function _M.Window:setBackgroundImage(fileName, r, g, b, a, idx, blendSrc, blendDst)
-	self:_setImage(self._rootProp, self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES, fileName, r, g, b, a, idx, blendSrc, blendDst)
+function _M.Window:setBackgroundImage(fileName, r, g, b, a, idx, blendSrc, blendDst, deckFactory)
+	self:_setImage(self._rootProp, self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES, fileName, r, g, b, a, idx, blendSrc, blendDst, deckFactory)
 	self:_setCurrImages(self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES)
 
 end

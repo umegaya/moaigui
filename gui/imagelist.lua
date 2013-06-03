@@ -48,7 +48,7 @@ function ImageData:init()
 	self.blendDst = nil
 end
 
-function _M.ImageList:setImage(imageType, idx, fileName, r, g, b, a, blendSrc, blendDst)
+function _M.ImageList:setImage(imageType, idx, fileName, r, g, b, a, blendSrc, blendDst, deckFactory)
 	local images = self._images[imageType]
 	if (nil == images) then
 		images = {}
@@ -77,6 +77,7 @@ function _M.ImageList:setImage(imageType, idx, fileName, r, g, b, a, blendSrc, b
 	curr.colorData = {r, g, b, a}
 	curr.blendSrc = blendSrc
 	curr.blendDst = blendDst
+	curr.deckFactory = deckFactory
 end
 
 function _M.ImageList:getImage(imageType, idx)

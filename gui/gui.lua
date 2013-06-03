@@ -120,8 +120,8 @@ function _M.GUI:_createProp(priority)
 	return prop
 end
 
-function _M.GUI:_createQuad()
-	local quad = MOAIGfxQuad2D.new()
+function _M.GUI:_createQuad(deckFactory, userProp)
+	local quad = (deckFactory and deckFactory(userProp) or MOAIGfxQuad2D.new())
 
 	return quad
 end

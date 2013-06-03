@@ -491,9 +491,9 @@ function _M.WidgetList:getBackgroundImage()
 	return self._imageList:getImage(self._BACKGROUND_INDEX, self.BACKGROUND_IMAGES)
 end
 
-function _M.WidgetList:setSelectionImage(fileName, r, g, b, a, idx, blendSrc, blendDst)
+function _M.WidgetList:setSelectionImage(fileName, r, g, b, a, idx, blendSrc, blendDst, deckType)
 	idx = (idx or 1)
-	self._imageList:setImage(self.SELECTION_IMAGES, idx, fileName, r, g, b, a, blendSrc, blendDst)
+	self._imageList:setImage(self.SELECTION_IMAGES, idx, fileName, r, g, b, a, blendSrc, blendDst, deckType)
 end
 
 function _M.WidgetList:getSelectionImage(idx)

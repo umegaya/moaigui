@@ -145,11 +145,11 @@ function _M.AWindow:_addProps(parent, objIdx, maxCount)
 	end
 end
 
-function _M.AWindow:_setImage(parent, objIdx, imageType, fileName, r, g, b, a, imageIdx, blendSrc, blendDst)
+function _M.AWindow:_setImage(parent, objIdx, imageType, fileName, r, g, b, a, imageIdx, blendSrc, blendDst, deckFactory)
 	imageIdx = (imageIdx or 1)
 
 	self:_addProps(parent, objIdx, imageIdx)
-	self._imageList:setImage(imageType, imageIdx, fileName, r, g, b, a, blendSrc, blendDst)
+	self._imageList:setImage(imageType, imageIdx, fileName, r, g, b, a, blendSrc, blendDst, deckFactory)
 end
 
 function _M.AWindow:_setCurrImages(objIdx, imageType)
@@ -167,7 +167,7 @@ function _M.AWindow:_setCurrImages(objIdx, imageType)
 	for i, v in ipairs(images) do
 		local quad = quads[i]
 		if (nil == quad) then
-			quad = self._gui:_createQuad()
+			quad = self._gui:_createQuad(v.deckFactory, props[i])
 			quads[i] = quad
 		end
 
@@ -346,7 +346,7 @@ end
 function _M.AWindow:setPos(x, y)
 	self._x = x
 	self._y = y
-
+	
 	local screenX, screenY = self._gui:_calcAbsValue(x, y)
 	self._rootProp:setLoc(screenX, -screenY)
 

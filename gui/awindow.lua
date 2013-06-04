@@ -167,11 +167,15 @@ function _M.AWindow:_setCurrImages(objIdx, imageType)
 	for i, v in ipairs(images) do
 		local quad = quads[i]
 		if (nil == quad) then
-			quad = self._gui:_createQuad(v.deckFactory, props[i])
+			quad = self._gui:_createQuad(v.deckFactory, props[i], v)
 			quads[i] = quad
+		elseif v.deckFactory then
+			-- if custom deck creation is specified, always call _createQuad (if you need cache, do it under your own resposibility)
+			quad = self._gui:_createQuad(v.deckFactory, props[i], v)
+			quads[i] = quad
+		else
+			quad:setTexture(v.texture)
 		end
-
-		quad:setTexture(v.texture)
 
 		local prop = props[i]
 		prop:setDeck(quad)

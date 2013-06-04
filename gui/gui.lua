@@ -120,10 +120,14 @@ function _M.GUI:_createProp(priority)
 	return prop
 end
 
-function _M.GUI:_createQuad(deckFactory, userProp)
-	local quad = (deckFactory and deckFactory(userProp) or MOAIGfxQuad2D.new())
-
-	return quad
+function _M.GUI:_createQuad(deckFactory, userProp, config)
+	if deckFactory then
+		return deckFactory(userProp, config)
+	else
+		local quad = MOAIGfxQuad2D.new()
+		quad:setTexture(config.texture)		
+		return quad
+	end
 end
 
 function _M.GUI:_destroyProp(prop)

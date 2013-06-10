@@ -103,7 +103,16 @@ function WidgetListHeader:init(gui, height)
 	self._type = "WidgetListHeader"
 
 	self._height = height
+	self._unused = false
 	self._colWidths = {}
+end
+
+function WidgetListRow:setUnused(on)
+	self._unused = on
+end
+
+function WidgetListRow:unused()
+	return self._unused
 end
 
 function WidgetListRow:_onHandleMouseClick(event)
@@ -301,10 +310,14 @@ function _M.WidgetList:_displayRows()
 		maxRow = math.min(#self._rows, self._topPos + self:_calcScrollBarPageSize() - 1)
 	end
 
+	local idx = 0
 	for i = minRow, maxRow do
 		-->print('show', i)
-		self._rows[i]:show()
-		self._rows[i]:setPos(0.5, HEADER_HEIGHT + (i - minRow) * self._rowHeight)
+		if not self._rows[i]:unused() then
+			self._rows[i]:show()
+			self._rows[i]:setPos(0.5, HEADER_HEIGHT + idx * self._rowHeight)
+			idx = (idx + 1)
+		end
 	end
 end
 

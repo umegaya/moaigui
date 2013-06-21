@@ -21,7 +21,7 @@ function _handleButton1Click(event, data)
 end
 
 -- Turn off the texture loading logging
-MOAILogMgr.setLogLevel(MOAILogMgr.LOG_NONE)
+-- MOAILogMgr.setLogLevel(MOAILogMgr.LOG_NONE)
 
 -- Setup your basic window
 local width = 320

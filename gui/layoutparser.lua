@@ -91,7 +91,7 @@ function _M.LayoutParser:_baseFromData(w, data)
 	end
 
 	if (nil ~= data.font) then
-		local font = fonts.loadFont(data.font.type, data.font.name, data.font.size)
+		local font = fonts.load(data.font.type, data.font.name, data.font.size)
 		w:setTextFont(font, data.font.size)
 	end
 

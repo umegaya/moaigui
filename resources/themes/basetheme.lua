@@ -1,7 +1,7 @@
 
 local
-font_file = "migmix-1p-regular.ttf"
--->font_file = "arial-rounded.TTF"
+--font_file = "migmix-1p-regular.ttf"
+font_file = "arial-rounded.TTF"
 -->font_file = "Osaka.ttf"
 
 data = {

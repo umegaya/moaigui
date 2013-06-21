@@ -138,14 +138,13 @@ function _M.Theme:_loadTextStyles(data)
 		return
 	end
 
+	local scale = _G.font_size_scale or 1
 	for k, v in pairs(styleList) do
-		local font = fonts.load(k, v.font)
+		local font = fonts.load(k, v.font, v.size)
 		local color = v.color
 		if (nil == color) then
 			color = {1, 1, 1, 1}
 		end
-
-		scale = (scale or 1)
 
 		textstyles.create(k, font, v.size, color[1], color[2], color[3], color[4], scale)
 	end

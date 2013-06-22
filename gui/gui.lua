@@ -62,6 +62,7 @@ _M.GUI = class()
 local GUI_PRIORITY = 0
 local BASE_PRIORITY = 0
 local RESOURCE_GROUP = nil
+local DEFAULT_DPI = 72
 
 function _M.GUI:_calcAbsValue(x, y)
 	x = (x / 100.0) * self._width
@@ -734,8 +735,8 @@ end
 function _M.GUI:init(width, height, dpi, base_dpi)
 	self._width = width
 	self._height = height
-	self._dpi = dpi --> actual screen dpi
-	self._base_dpi = base_dpi --> design target dpi (multiply (dpi / base_dpi) for another target dpi)
+	self._dpi = dpi or DEFAULT_DPI --> actual screen dpi
+	self._base_dpi = base_dpi or DEFAULT_DPI --> design target dpi (multiply (dpi / base_dpi) for another target dpi)
 
 	self._windows = {}
 	self._propToWindow = {}

@@ -40,12 +40,12 @@ local resources = require "gui/support/resources"
 local fonts = {}
 fonts.CHARCODES = [[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:;!?()&/-"']]
 
-local function _createFont(name, fontSize)
+local function _createFont(name, fontSize, dpi)
 	local font = MOAIFont.new()
 	font:load(name)
 	
 	if fontSize then
-		font:preloadGlyphs(fonts.CHARCODES, fontSize)
+		font:preloadGlyphs(fonts.CHARCODES, fontSize, dpi)
 	end
 
 	return font
@@ -55,15 +55,15 @@ function _M.get(name)
 	return fonts[name]
 end
 
-function _M.load(name, fileName, fontSize)
+function _M.load(name, fileName, fontSize, dpi)
 	local font = fonts[name]
 	if (nil ~= font) then
 		return font
 	end
 
 	fileName = resources.getPath(fileName)
-	font = _createFont(fileName, fontSize)
-	print('load font:' .. tostring(fileName), font)
+	font = _createFont(fileName, fontSize, dpi)
+	print('load font:' .. tostring(fileName), font, dpi)
 
 	if (nil ~= font) then
 		fonts[name] = font

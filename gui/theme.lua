@@ -138,7 +138,6 @@ function _M.Theme:_loadTextStyles(data)
 		return
 	end
 
-	local scale = _G.font_size_scale or 1
 	for k, v in pairs(styleList) do
 		local font = fonts.load(k, v.font, v.size)
 		local color = v.color
@@ -146,7 +145,7 @@ function _M.Theme:_loadTextStyles(data)
 			color = {1, 1, 1, 1}
 		end
 
-		textstyles.create(k, font, v.size, color[1], color[2], color[3], color[4], scale)
+		textstyles.create(k, font, v.size, color[1], color[2], color[3], color[4], self.gui:font_scale())
 	end
 end
 
@@ -181,7 +180,7 @@ function _M.Theme:_load(fileName)
 	self.widgetListTheme = self:_loadWidgetTheme("widgetlist", data, WidgetListTheme)
 end
 
-function _M.Theme:init(fileName)
+function _M.Theme:init(fileName, gui)
 	self.texture = nil
 	self.labelTheme = nil
 	self.buttonTheme = nil
@@ -195,6 +194,8 @@ function _M.Theme:init(fileName)
 	self.progressBarTheme = nil
 	self.textBoxTheme = nil
 	self.widgetListTheme = nil
+	
+	self.gui = gui
 
 	self:_load(fileName)
 end

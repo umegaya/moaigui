@@ -660,7 +660,7 @@ function _M.GUI:setTheme(fileName)
 
 	local t = self._themes[fileName]
 	if (nil == t) then
-		t = theme.Theme(fileName)
+		t = theme.Theme(fileName, self)
 		self._themes[fileName] = t
 	end
 
@@ -715,6 +715,12 @@ function _M.GUI:registerEvents(obj, func)
 	obj[func](obj, eventtypes.KEY_UP, "gui", GUI_PRIORITY, self, "_handleKeyUp")
 end
 
+function _M.GUI:font_scale()
+	return self._dpi / self._base_dpi
+end
+function _M.GUI:dpi()
+	return self._dpi
+end
 function _M.GUI:shutdown()
 	textures.releaseAll()
 	fonts.releaseAll()
@@ -725,9 +731,11 @@ function _M.GUI:shutdown()
 	end
 end
 
-function _M.GUI:init(width, height)
+function _M.GUI:init(width, height, dpi, base_dpi)
 	self._width = width
 	self._height = height
+	self._dpi = dpi --> actual screen dpi
+	self._base_dpi = base_dpi --> design target dpi (multiply (dpi / base_dpi) for another target dpi)
 
 	self._windows = {}
 	self._propToWindow = {}

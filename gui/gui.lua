@@ -126,7 +126,7 @@ function _M.GUI:_createQuad(deckFactory, userProp, config)
 		return deckFactory(userProp, config)
 	else
 		local quad = MOAIGfxQuad2D.new()
-		quad:setTexture(config.texture)		
+		quad:setTexture(config.texture)
 		return quad
 	end
 end
@@ -511,6 +511,10 @@ end
 function _M.GUI:_addWindow(w)
 	self._windows[#self._windows + 1] = w
 	self:moveToFront(w)
+end
+
+function _M.GUI:_removeWindow(w)
+	array.removeElement(self._windows, w)
 end
 
 function _M.GUI:createWindow(...)

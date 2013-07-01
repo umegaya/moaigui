@@ -335,12 +335,15 @@ function _M.AWindow:_addWidgetChild(child)
 end
 
 function _M.AWindow:_removeWidgetChild(child)
+	local idx
 	for i, v in ipairs(self._widgetChildren) do
 		if (v == child) then
 			v:destroy()
+			idx = i
 			break
 		end
 	end
+	table.remove(self._widgetChildren, idx)
 end
 
 function _M.AWindow:_getWidgetChild(idx)
@@ -718,6 +721,13 @@ function _M.AWindow:destroy()
 			self._gui:_destroyProp(v2)
 		end
 	end
+
+	if self._rootProp then
+		self._gui:_destroyProp(self._rootProp)
+	end
+
+	self._gui:_removeWindow(self)
+	self._parent = nil	
 end
 
 

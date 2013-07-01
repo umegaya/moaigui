@@ -85,7 +85,7 @@ function _M.TextBox:_displayLines()
 		-->print('hide line', i, self._lines[i]:getText())
 		v:hide()
 	end
-
+	
 	local minLine, maxLine
 
 	if (not self:useSwipe()) and self._scrollBar then
@@ -302,6 +302,12 @@ function _M.TextBox:addText(text)
 
 	self:_addText(paragraphs[#paragraphs])
 	
+	if self._maxLines and (#self._lines > self._maxLines) then
+		for i=1,(#self._lines - self._maxLines),1 do
+			self:removeLine(1, true)
+		end
+	end
+	
 	if self._topPos and self._options and self._options.showBottom then
 		if #self._lines >= (self._topPos + self:_calcScrollBarPageSize()) then
 			self:__setNewTopPos(#self._lines - self:_calcScrollBarPageSize() + 1)
@@ -323,7 +329,7 @@ function _M.TextBox:getText(text)
 	return self._fullText
 end
 
-function _M.TextBox:removeLine(idx)
+function _M.TextBox:removeLine(idx, no_render)
 	if (idx < 1 or idx > #self._lines) then return end
 
 	local text = self._lines[idx]:getText()
@@ -351,7 +357,9 @@ function _M.TextBox:removeLine(idx)
 		end
 	end
 
-	self:_displayLines()
+	if no_render then
+		self:_displayLines()
+	end
 end
 
 function _M.TextBox:clearText()
@@ -392,7 +400,7 @@ function _M.TextBox:init(gui, options)
 	self._fullText = ""
 	self._lineHeight = 0
 	self._lines = {}
-	-- self._maxLines = 20
+	self._maxLines = (options and options.maxLines or nil)
 
 	self._options = options
 	

@@ -170,6 +170,7 @@ end
 function _M.Text:destroy()
 	self._parent._gui:partition():removeProp(self._textBox)
 	self._parent._gui:_unregisterHitObject(self._textBox)
+	self._parent = nil
 end
 
 function _M.Text:init(parent)

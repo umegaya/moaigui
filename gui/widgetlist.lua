@@ -217,6 +217,11 @@ function WidgetListRow:init(gui, idx, widths, width, height)
 	self:_setCurrImages(self._IMAGE_INDEX, self.UNSELECTED_IMAGES)
 end
 
+function WidgetListRow:destroy()
+	self._items = nil
+	awindow.AWindow.destroy(self)
+end
+
 function _M.WidgetList:_createWidgetListSelectEvent(idx)
 	local t = awidgetevent.AWidgetEvent(self.EVENT_WIDGET_LIST_SELECT, self)
 	t.selection = idx
@@ -600,6 +605,11 @@ end
 
 function _M.WidgetList:disableSelection()
 	return self._options and (self._options.disableSelection)
+end
+
+function _M.WidgetList:destroy()
+	self._header = nil
+	awindow.AWindow.destroy(self)
 end
 
 function _M.WidgetList:init(gui, options)

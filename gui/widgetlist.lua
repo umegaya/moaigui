@@ -75,20 +75,22 @@ function WidgetListHeader:setHeaderText(col, text)
 	self._widgetChildren[col]:setText(text)
 end
 
-function WidgetListHeader:addColumn(text, width)
+function WidgetListHeader:addColumn(text, width, hide_header)
 	local x = 0
 	for i, v in ipairs(self._widgetChildren) do
 		x = x + v:width()
 	end
 
-	local col = WidgetListColumn(self._gui)
-	self:_addWidgetChild(col)
-	col:setPos(x, 0)
-	col:setDim(width, self._height)
-	col:setText(text)
-	col:setTextStyle(self._gui._factory._textStyle)
-	col:setTextAlignment(col.TEXT_ALIGN_LEFT, col.TEXT_ALIGN_CENTER)
-	col:setAllImages(resources.getPath("empty.png"))
+	if not hide_header then
+		local col = WidgetListColumn(self._gui)
+		self:_addWidgetChild(col)
+		col:setPos(x, 0)
+		col:setDim(width, self._height)
+		col:setText(text)
+		col:setTextStyle(self._gui._factory._textStyle)
+		col:setTextAlignment(col.TEXT_ALIGN_LEFT, col.TEXT_ALIGN_CENTER)
+		col:setAllImages(resources.getPath("empty.png"))
+	end
 
 	self._colWidths[#self._colWidths + 1] = width
 end
@@ -251,23 +253,23 @@ function _M.WidgetList:_createWidgetListRemoveRowEvent(idx)
 end
 
 function _M.WidgetList:_calcScrollBarPageSize()
-	return math.floor(((self:height() - HEADER_HEIGHT) / self._rowHeight) + 0.5)
+	return math.floor(((self:height() - self:headerHeight()) / self._rowHeight) + 0.5)
 end
 
 function _M.WidgetList:_onSetPos()
 	if (nil ~= self._scrollBar) then
-		self._scrollBar:setPos(self:width() - SCROLL_BAR_WIDTH, HEADER_HEIGHT)
+		self._scrollBar:setPos(self:width() - SCROLL_BAR_WIDTH, self:headerHeight())
 	end
 end
 
 function _M.WidgetList:_onSetDim()
 	if (nil ~= self._header) then
-		self._header:setDim(self:width(), HEADER_HEIGHT)
+		self._header:setDim(self:width(), self:headerHeight())
 	end
 
 	if (nil ~= self._scrollBar) then
-		self._scrollBar:setDim(SCROLL_BAR_WIDTH, self:height() - HEADER_HEIGHT)
-		self._scrollBar:setPos(self:width() - SCROLL_BAR_WIDTH, HEADER_HEIGHT)
+		self._scrollBar:setDim(SCROLL_BAR_WIDTH, self:height() - self:headerHeight())
+		self._scrollBar:setPos(self:width() - SCROLL_BAR_WIDTH, self:headerHeight())
 		self._scrollBar:setPageSize(self:_calcScrollBarPageSize())
 	end
 end
@@ -320,7 +322,7 @@ function _M.WidgetList:_displayRows()
 		-->print('show', i)
 		if not self._rows[i]:unused() then
 			self._rows[i]:show()
-			self._rows[i]:setPos(0.5, HEADER_HEIGHT + idx * self._rowHeight)
+			self._rows[i]:setPos(0.5, self:headerHeight() + idx * self._rowHeight)
 			idx = (idx + 1)
 		end
 	end
@@ -334,6 +336,9 @@ end
 --> for swipe detection
 function _M.WidgetList:useSwipe()
 	return self._options and self._options.useSwipe
+end
+function _M.WidgetList:hideHeader()
+	return self._options and self._options.hideHeader
 end
 function _M.WidgetList:showScrollBarOnSwipe()
 	return self._options and self._options.showScrollBarOnSwipe
@@ -387,7 +392,7 @@ end
 
 
 function _M.WidgetList:addColumn(text, width)
-	self._header:addColumn(text, width)
+	self._header:addColumn(text, width, self:headerHeight() == 0)
 end
 
 function _M.WidgetList:insertRow(before, data)
@@ -588,6 +593,10 @@ function _M.WidgetList:clearSelections()
 	self._selections = {}
 end
 
+function _M.WidgetList:headerHeight()
+	return self:hideHeader() and 0 or HEADER_HEIGHT
+end
+
 function _M.WidgetList:clearList()
 	self:clearSelections()
 
@@ -650,7 +659,11 @@ function _M.WidgetList:init(gui, options)
 	end
 
 	self._header = WidgetListHeader(gui, HEADER_HEIGHT)
-	self:_addWidgetChild(self._header)
+	if self:headerHeight() > 0 then
+		self:_addWidgetChild(self._header)
+	else
+		self._header:hide()
+	end
 	
 	self:setRowHeight(ROW_HEIGHT)
 end
